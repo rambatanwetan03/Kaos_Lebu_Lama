@@ -95,9 +95,22 @@
 
                     <form id="salesForm" class="space-y-4">
                         <input type="hidden" id="editId" value="">
+                        
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Nama Pembeli</label>
                             <input type="text" id="buyerName" required placeholder="Masukkan nama" class="w-full p-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none text-base">
+                        </div>
+
+                        <!-- BARU: Alamat dan Handphone -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Nomor Handphone (WA)</label>
+                                <input type="tel" id="phoneNumber" placeholder="08xxx" class="w-full p-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none text-base">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Alamat Singkat</label>
+                                <input type="text" id="address" placeholder="Contoh: No. 12" class="w-full p-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none text-base">
+                            </div>
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -198,36 +211,30 @@
 
     <script>
         /**
-         * 1. MASUKKAN KONFIGURASI SUPABASE ANDA DI SINI
-         * Pastikan Anda sudah membuat tabel 'sales' di Supabase dengan skema yang sesuai.
+         * 1. KONFIGURASI SUPABASE
          */
-        const SUPABASE_URL = "https://nfcvdnjhsogdlqujwohq.supabase.co"; // Masukkan URL Supabase Anda
-        const SUPABASE_KEY = "sb_publishable_d-NMBtZWElF3S8qKKpQJOw_Zsmxc2te"; // Masukkan Anon Key Supabase Anda
+        const SUPABASE_URL = "https://nfcvdnjhsogdlqujwohq.supabase.co"; 
+        const SUPABASE_KEY = "sb_publishable_d-NMBtZWElF3S8qKKpQJOw_Zsmxc2te"; 
         
         let supabaseClient;
 
-try {
-    if (SUPABASE_URL && SUPABASE_KEY) {
-        supabaseClient = window.supabase.createClient(
-            SUPABASE_URL,
-            SUPABASE_KEY
-        );
-    }
-} catch(e) {
-    console.error("Supabase config error", e);
-}
+        try {
+            if (SUPABASE_URL && SUPABASE_KEY) {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            }
+        } catch(e) {
+            console.error("Supabase config error", e);
+        }
 
-        // Auth Config
         const USERS = {
             "RT14": { pass: "Lebulama", role: "admin" },
             "Lebulama": { pass: "123456", role: "pembeli" }
         };
 
         let currentUser = JSON.parse(localStorage.getItem('blok_lebu_user')) || null;
-        let localData = []; // Fallback jika supabase belum dikonfigurasi
+        let localData = []; 
         let activeId = null;
 
-        // UI Functions
         function toggleLoader(show) { document.getElementById('loader').style.display = show ? 'flex' : 'none'; }
 
         function togglePasswordVisibility() {
@@ -239,7 +246,6 @@ try {
             eyeClosed.classList.toggle('hidden');
         }
 
-        // Logic Functions
         async function fetchData() {
             if (!supabaseClient) {
                 localData = JSON.parse(localStorage.getItem('offline_sales')) || [];
@@ -248,12 +254,9 @@ try {
             }
 
             toggleLoader(true);
-            const { data, error } = await supabaseClient
-    .from('sales')
-                .select('*')
-                .order('created_at', { ascending: false });
-
+            const { data, error } = await supabaseClient.from('sales').select('*').order('created_at', { ascending: false });
             toggleLoader(false);
+
             if (error) {
                 console.error(error);
                 alert("Gagal sinkronisasi data!");
@@ -284,7 +287,6 @@ try {
             fetchData();
         }
 
-        // App Core
         function initApp() {
             if (!currentUser) {
                 document.getElementById('loginScreen').classList.remove('hidden');
@@ -353,6 +355,8 @@ try {
 
             const payload = {
                 name: document.getElementById('buyerName').value,
+                phone: document.getElementById('phoneNumber').value, // Baru
+                address: document.getElementById('address').value, // Baru
                 category: document.getElementById('category').value,
                 size: document.querySelector('input[name="size"]:checked').value,
                 is_long: document.getElementById('longSleeve').checked,
@@ -404,7 +408,15 @@ try {
                         <div class="flex justify-between items-start">
                             <div class="flex-grow">
                                 <h3 class="font-bold text-slate-800 uppercase text-sm">${item.name}</h3>
-                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">${item.category} • ${item.size} ${item.is_long ? '• PJG' : ''}</p>
+                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">
+                                    ${item.category} • ${item.size} ${item.is_long ? '• PJG' : ''}
+                                </p>
+                                ${item.phone || item.address ? `
+                                    <div class="mt-2 text-[9px] text-slate-500 font-medium">
+                                        ${item.phone ? `<p>📞 ${item.phone}</p>` : ''}
+                                        ${item.address ? `<p>🏠 ${item.address}</p>` : ''}
+                                    </div>
+                                ` : ''}
                             </div>
                             <span class="text-[8px] px-2 py-0.5 rounded-full font-black uppercase ${remain <= 0 ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}">
                                 ${remain <= 0 ? 'Lunas' : 'Cicilan'}
@@ -440,6 +452,8 @@ try {
 
             document.getElementById('editId').value = item.id;
             document.getElementById('buyerName').value = item.name;
+            document.getElementById('phoneNumber').value = item.phone || '';
+            document.getElementById('address').value = item.address || '';
             document.getElementById('category').value = item.category;
             document.getElementById('longSleeve').checked = item.is_long;
             document.getElementById('formTitle').innerText = "Edit Pesanan";
@@ -480,7 +494,7 @@ try {
             const payments = item.payments || [];
             payments.push({ amount: amt, date: new Date().toISOString() });
 
-            if (supabase) {
+            if (supabaseClient) {
                 await supabaseClient.from('sales').update({ payments }).eq('id', activeId);
             } else {
                 item.payments = payments;
@@ -498,14 +512,12 @@ try {
 
         function closeModal() { document.getElementById('paymentModal').classList.add('hidden'); }
 
-        // Event Listeners
         document.getElementById('category').onchange = () => renderSizes();
         document.getElementById('paymentStatus').onchange = (e) => {
             document.getElementById('installmentInput').classList.toggle('hidden', e.target.value !== 'cicilan');
         };
 
         window.onload = initApp;
-        if (!SUPABASE_URL) console.warn("Aplikasi berjalan dalam mode OFFLINE. Isi SUPABASE_URL & KEY untuk sinkronisasi cloud.");
     </script>
 </body>
 </html>
