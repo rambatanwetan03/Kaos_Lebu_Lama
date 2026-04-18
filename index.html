@@ -7,6 +7,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
+    <!-- EXPORT PDF & EXCEL -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -101,6 +105,7 @@
                             <input type="text" id="buyerName" required placeholder="Masukkan nama" class="w-full p-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none text-base">
                         </div>
 
+                        <!-- BARU: Alamat dan Handphone -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Nomor Handphone (WA)</label>
@@ -151,25 +156,6 @@
                             </div>
                         </div>
 
-                        <!-- INFO PEMBAYARAN WHATSAPP -->
-                        <div class="p-4 bg-green-50 rounded-xl border border-green-200">
-                            <p class="text-[10px] font-bold text-green-800 uppercase mb-2">Info Pembayaran Lunas:</p>
-                            <div class="space-y-2">
-                                <a href="https://wa.me/6289664233056" target="_blank" class="flex items-center gap-3 text-sm font-semibold text-slate-700 hover:text-green-600 transition-colors">
-                                    <div class="bg-green-500 p-1.5 rounded-full text-white">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.246 2.248 3.484 5.232 3.484 8.412-.003 6.557-5.338 11.892-11.893 11.892-1.997-.001-3.951-.5-5.688-1.448l-6.309 1.656zm6.29-4.464c1.54.922 3.319 1.411 5.137 1.411 5.514 0 10.003-4.488 10.006-10.001.001-2.671-1.039-5.181-2.928-7.071-1.889-1.891-4.4-2.932-7.071-2.933-5.515 0-10.002 4.487-10.005 10.002-.001 1.883.52 3.715 1.503 5.304l-.999 3.65 3.754-.984zm11.233-7.514c-.301-.151-1.782-.879-2.057-.979-.275-.1-.475-.151-.675.151-.2.301-.776.979-.951 1.179-.175.2-.35.225-.651.075-.301-.151-1.272-.469-2.422-1.494-.894-.797-1.498-1.781-1.674-2.081-.176-.3-.018-.462.132-.612.135-.135.301-.351.451-.526.15-.175.2-.301.3-.501.1-.2.05-.375-.025-.525-.075-.15-.675-1.628-.925-2.231-.244-.587-.491-.508-.675-.517-.175-.008-.375-.009-.575-.009-.2 0-.525.075-.8.375-.275.3-1.05 1.026-1.05 2.503s1.075 2.903 1.225 3.103c.15.2 2.115 3.231 5.125 4.531.716.309 1.275.494 1.711.633.719.228 1.373.196 1.891.118.577-.087 1.782-.727 2.032-1.429.25-.701.25-1.301.175-1.429-.075-.126-.275-.201-.575-.351z"/></svg>
-                                    </div>
-                                    <span>Desy (089664233056)</span>
-                                </a>
-                                <a href="https://wa.me/62895355260887" target="_blank" class="flex items-center gap-3 text-sm font-semibold text-slate-700 hover:text-green-600 transition-colors">
-                                    <div class="bg-green-500 p-1.5 rounded-full text-white">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.246 2.248 3.484 5.232 3.484 8.412-.003 6.557-5.338 11.892-11.893 11.892-1.997-.001-3.951-.5-5.688-1.448l-6.309 1.656zm6.29-4.464c1.54.922 3.319 1.411 5.137 1.411 5.514 0 10.003-4.488 10.006-10.001.001-2.671-1.039-5.181-2.928-7.071-1.889-1.891-4.4-2.932-7.071-2.933-5.515 0-10.002 4.487-10.005 10.002-.001 1.883.52 3.715 1.503 5.304l-.999 3.65 3.754-.984zm11.233-7.514c-.301-.151-1.782-.879-2.057-.979-.275-.1-.475-.151-.675.151-.2.301-.776.979-.951 1.179-.175.2-.35.225-.651.075-.301-.151-1.272-.469-2.422-1.494-.894-.797-1.498-1.781-1.674-2.081-.176-.3-.018-.462.132-.612.135-.135.301-.351.451-.526.15-.175.2-.301.3-.501.1-.2.05-.375-.025-.525-.075-.15-.675-1.628-.925-2.231-.244-.587-.491-.508-.675-.517-.175-.008-.375-.009-.575-.009-.2 0-.525.075-.8.375-.275.3-1.05 1.026-1.05 2.503s1.075 2.903 1.225 3.103c.15.2 2.115 3.231 5.125 4.531.716.309 1.275.494 1.711.633.719.228 1.373.196 1.891.118.577-.087 1.782-.727 2.032-1.429.25-.701.25-1.301.175-1.429-.075-.126-.275-.201-.575-.351z"/></svg>
-                                    </div>
-                                    <span>Yusup (0895355260887)</span>
-                                </a>
-                            </div>
-                        </div>
-
                         <button type="submit" id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg transition-all active:scale-95">
                             SIMPAN PESANAN
                         </button>
@@ -183,12 +169,21 @@
             <!-- List Section -->
             <section class="lg:col-span-7 space-y-6">
                 <div class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col h-full min-h-[500px]">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-xl font-bold text-slate-800">Daftar Penjualan</h2>
-                        <button onclick="fetchData()" class="p-2 text-slate-400 hover:text-blue-600 transition-colors" title="Refresh">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-                        </button>
-                    </div>
+                    <div class="flex flex-wrap justify-between items-center mb-6 gap-2">
+    <h2 class="text-xl font-bold text-slate-800">Daftar Penjualan</h2>
+    
+    <div class="flex gap-2">
+        <button onclick="downloadPDF()" class="px-3 py-2 bg-red-600 text-white text-xs font-bold rounded-lg">
+            Download PDF
+        </button>
+        <button onclick="downloadExcel()" class="px-3 py-2 bg-green-600 text-white text-xs font-bold rounded-lg">
+            Download Excel
+        </button>
+        <button onclick="fetchData()" class="p-2 text-slate-400 hover:text-blue-600">
+            🔄
+        </button>
+    </div>
+</div>
 
                     <div id="salesList" class="grid grid-cols-1 gap-4 overflow-y-auto pr-1 custom-scrollbar flex-grow" style="max-height: 70vh;">
                         <!-- Data will be rendered here -->
@@ -536,6 +531,82 @@
         };
 
         window.onload = initApp;
+
+        // ================= EXPORT PDF =================
+async function downloadPDF() {
+    let data = [];
+
+    if (supabaseClient) {
+        const res = await supabaseClient.from('sales').select('*');
+        data = res.data || [];
+    } else {
+        data = JSON.parse(localStorage.getItem('offline_sales')) || [];
+    }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    let y = 10;
+    doc.setFontSize(12);
+    doc.text("DATA PENJUALAN BLOK LEBU LAMA RT 14", 10, y);
+    y += 10;
+
+    data.forEach((item, i) => {
+        const paid = (item.payments || []).reduce((a, b) => a + b.amount, 0);
+        const remain = item.price - paid;
+
+        doc.setFontSize(10);
+        doc.text(`${i+1}. ${item.name}`, 10, y); y+=5;
+        doc.text(`Kategori: ${item.category} | Size: ${item.size}`, 10, y); y+=5;
+        doc.text(`Total: Rp ${item.price}`, 10, y); y+=5;
+        doc.text(`Dibayar: Rp ${paid}`, 10, y); y+=5;
+        doc.text(`Sisa: Rp ${remain}`, 10, y); y+=8;
+
+        if (y > 270) {
+            doc.addPage();
+            y = 10;
+        }
+    });
+
+    doc.save("data-penjualan.pdf");
+}
+
+
+// ================= EXPORT EXCEL =================
+async function downloadExcel() {
+    let data = [];
+
+    if (supabaseClient) {
+        const res = await supabaseClient.from('sales').select('*');
+        data = res.data || [];
+    } else {
+        data = JSON.parse(localStorage.getItem('offline_sales')) || [];
+    }
+
+    const formatted = data.map((item, i) => {
+        const paid = (item.payments || []).reduce((a, b) => a + b.amount, 0);
+        const remain = item.price - paid;
+
+        return {
+            No: i + 1,
+            Nama: item.name,
+            HP: item.phone || '',
+            Alamat: item.address || '',
+            Kategori: item.category,
+            Size: item.size,
+            Lengan: item.is_long ? "Panjang" : "Pendek",
+            Total: item.price,
+            Dibayar: paid,
+            Sisa: remain
+        };
+    });
+
+    const ws = XLSX.utils.json_to_sheet(formatted);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Penjualan");
+
+    XLSX.writeFile(wb, "data-penjualan.xlsx");
+}
     </script>
 </body>
 </html>
