@@ -399,8 +399,19 @@
             }
 
             await saveData(payload);
+// AUTO WA JIKA PILIH LUNAS
+if (document.getElementById('paymentStatus').value === 'lunas') {
+    const noWa = "6289664233056"; // nomor Desy
+    const nama = document.getElementById('buyerName').value;
+    const total = price;
+
+    const pesan = `Halo Desy, saya ${nama} sudah melakukan pemesanan KAOS BLOK LEBU LAMA dengan status LUNAS. Mohon info nomor rekening ya. Total Rp ${total.toLocaleString('id-ID')}. Terima kasih.`;
+
+    window.open(`https://wa.me/${noWa}?text=${encodeURIComponent(pesan)}`, '_blank');
+}
             resetForm();
         });
+        
 
         function renderData(data) {
             const list = document.getElementById('salesList');
@@ -514,10 +525,21 @@
                 localStorage.setItem('offline_sales', JSON.stringify(localData));
             }
 
-            closeModal();
-            fetchData();
-        }
+            // Cek apakah sudah lunas
+const totalPaid = payments.reduce((a,b)=>a+b.amount, 0);
+const remain = item.price - totalPaid;
 
+closeModal();
+fetchData();
+
+// Jika lunas → arahkan ke WhatsApp
+if (remain <= 0) {
+    const noWa = "6289664233056"; // nomor tanpa 0 depan
+    const pesan = `Halo Desy, saya sudah melakukan pembayaran lunas. Mohon info nomor rekening ya. Terima kasih.`;
+    const url = `https://wa.me/${noWa}?text=${encodeURIComponent(pesan)}`;
+    window.open(url, '_blank');
+}
+}
         async function fetchDataById(id) {
             const { data } = await supabaseClient.from('sales').select('*').eq('id', id).single();
             return data;
@@ -531,7 +553,34 @@
         };
 
         window.onload = initApp;
+// AUTO WA SAAT SUDAH LUNAS
+document.addEventListener("click", function () {
+    setTimeout(async () => {
+        if (!activeId) return;
 
+        let item;
+        if (supabaseClient) {
+            item = await fetchDataById(activeId);
+        } else {
+            item = localData.find(d => d.id == activeId);
+        }
+
+        if (!item) return;
+
+        const paid = (item.payments || []).reduce((a,b)=>a+b.amount, 0);
+        const remain = item.price - paid;
+
+        // jika lunas
+        if (remain <= 0) {
+            const noWa = "6289664233056";
+            const pesan = `Halo Desy, saya sudah melakukan pembayaran lunas. Mohon info nomor rekening ya. Terima kasih.`;
+
+            window.open(`https://wa.me/${noWa}?text=${encodeURIComponent(pesan)}`, '_blank');
+
+            activeId = null; // biar tidak dobel
+        }
+    }, 500);
+});
         // ================= EXPORT PDF =================
 async function downloadPDF() {
     let data = [];
