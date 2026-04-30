@@ -189,7 +189,7 @@
                         <!-- Data will be rendered here -->
                     </div>
 
-                    <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 pt-6 border-t border-slate-100">
+                    <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6 border-t border-slate-100">
                         <div class="p-4 bg-green-50 rounded-2xl border border-green-100">
                             <p class="text-[10px] text-green-700 font-bold uppercase mb-1">Terkumpul</p>
                             <p id="totalCollected" class="text-xl font-black text-green-600">Rp 0</p>
@@ -198,6 +198,10 @@
                             <p class="text-[10px] text-orange-700 font-bold uppercase mb-1">Piutang</p>
                             <p id="totalReceivable" class="text-xl font-black text-orange-600">Rp 0</p>
                         </div>
+                        <div class="p-4 bg-blue-50 rounded-2xl border border-blue-100">
+    <p class="text-[10px] text-blue-700 font-bold uppercase mb-1">Untung</p>
+    <p id="totalProfit" class="text-xl font-black text-blue-600">Rp 0</p>
+</div>
                     </div>
                 </div>
             </section>
@@ -332,6 +336,7 @@
 
         const SIZES = { dewasa: ['S', 'M', 'L', 'XL', 'XXL'], anak: ['S Anak', 'M Anak', 'L Anak', 'XL Anak'] };
         const PRICES = { dewasa: 100000, anak: 80000, extra: 10000 };
+        const PROFITS = { dewasa: 30000, anak: 20000 };
 
         function renderSizes(selected = null) {
             const cat = document.getElementById('category').value;
@@ -416,7 +421,7 @@ if (document.getElementById('paymentStatus').value === 'lunas') {
         function renderData(data) {
             const list = document.getElementById('salesList');
             list.innerHTML = '';
-            let tPaid = 0, tDebt = 0;
+           let tPaid = 0, tDebt = 0, tProfit = 0;
 
             if (!data || data.length === 0) {
                 list.innerHTML = '<p class="text-center py-10 text-slate-400 italic text-xs">Database Kosong</p>';
@@ -424,6 +429,12 @@ if (document.getElementById('paymentStatus').value === 'lunas') {
                 data.forEach(item => {
                     const paid = (item.payments || []).reduce((a, b) => a + b.amount, 0);
                     const remain = item.price - paid;
+                   const profit = PROFITS[item.category] || 0;
+
+// CEK: apakah sudah lunas?
+if (remain <= 0) {
+    tProfit += profit;
+}
                     tPaid += paid; tDebt += remain;
 
                     const card = document.createElement('div');
@@ -468,6 +479,7 @@ if (document.getElementById('paymentStatus').value === 'lunas') {
 
             document.getElementById('totalCollected').innerText = `Rp ${tPaid.toLocaleString('id-ID')}`;
             document.getElementById('totalReceivable').innerText = `Rp ${tDebt.toLocaleString('id-ID')}`;
+            document.getElementById('totalProfit').innerText = `Rp ${tProfit.toLocaleString('id-ID')}`;
         }
 
         async function editItem(id) {
