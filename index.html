@@ -283,17 +283,33 @@
         }
 
         async function saveData(payload) {
-            toggleLoader(true);
-            let response;
-            if (payload.id) {
-                response = await supabaseClient.from('sales').update(payload).eq('id', payload.id);
-            } else {
-                response = await supabaseClient.from('sales').insert([payload]);
-            }
-            toggleLoader(false);
-            if (response.error) alert("Gagal menyimpan ke cloud!");
-            fetchData();
-        }
+    toggleLoader(true);
+    let response;
+
+    if (payload.id) {
+        const { id, ...updateData } = payload;
+
+        response = await supabaseClient
+            .from('sales')
+            .update(updateData)
+            .eq('id', id)
+            .select();
+    } else {
+        response = await supabaseClient
+            .from('sales')
+            .insert([payload])
+            .select();
+    }
+
+    toggleLoader(false);
+
+    if (response.error) {
+        console.error(response.error);
+        alert("Gagal menyimpan ke cloud!");
+    }
+
+    fetchData();
+}
 
         async function deleteData(id) {
             if (!confirm("Hapus data ini?")) return;
@@ -381,9 +397,20 @@
                 price: price
             };
 
-            if (editId) {
-                payload.id = editId;
-            } else {
+           if (editId) {
+    let oldData;
+
+    if (supabaseClient) {
+        oldData = await fetchDataById(editId);
+    } else {
+        oldData = localData.find(d => d.id == editId);
+    }
+
+    payload.id = editId;
+
+    // INI YANG PALING PENTING
+    payload.payments = oldData.payments || [];
+} else {
                 payload.payments = document.getElementById('paymentStatus').value === 'lunas' 
                     ? [{ amount: price, date: new Date().toISOString() }] 
                     : (dp > 0 ? [{ amount: dp, date: new Date().toISOString() }] : []);
@@ -565,34 +592,7 @@ if (remain <= 0) {
         };
 
         window.onload = initApp;
-// AUTO WA SAAT SUDAH LUNAS
-document.addEventListener("click", function () {
-    setTimeout(async () => {
-        if (!activeId) return;
 
-        let item;
-        if (supabaseClient) {
-            item = await fetchDataById(activeId);
-        } else {
-            item = localData.find(d => d.id == activeId);
-        }
-
-        if (!item) return;
-
-        const paid = (item.payments || []).reduce((a,b)=>a+b.amount, 0);
-        const remain = item.price - paid;
-
-        // jika lunas
-        if (remain <= 0) {
-            const noWa = "6289664233056";
-            const pesan = `Halo Desy, saya sudah melakukan pembayaran lunas. Mohon info nomor rekening ya. Terima kasih.`;
-
-            window.open(`https://wa.me/${noWa}?text=${encodeURIComponent(pesan)}`, '_blank');
-
-            activeId = null; // biar tidak dobel
-        }
-    }, 500);
-});
         // ================= EXPORT PDF =================
 async function downloadPDF() {
     let data = [];
