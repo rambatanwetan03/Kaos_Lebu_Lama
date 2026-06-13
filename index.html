@@ -441,7 +441,28 @@
                 }
 
                 payload.id = parsedId;
-                payload.payments = oldData ? (oldData.payments || []) : [];
+                
+                // Perbarui data cicilan/lunas secara presisi pada edit mode
+                let updatedPayments = oldData ? [...(oldData.payments || [])] : [];
+                const statusInput = document.getElementById('paymentStatus').value;
+
+                if (statusInput === 'lunas') {
+                    // Jika diubah menjadi lunas, atur pembayaran penuh senilai total harga
+                    updatedPayments = [{ amount: price, date: new Date().toISOString() }];
+                } else {
+                    // Jika metode adalah cicilan
+                    if (updatedPayments.length > 0) {
+                        // Perbarui cicilan pertama (pembayaran awal/DP)
+                        updatedPayments[0] = {
+                            amount: dp,
+                            date: updatedPayments[0].date || new Date().toISOString()
+                        };
+                    } else if (dp > 0) {
+                        // Jika sebelumnya kosong tetapi sekarang diinput DP
+                        updatedPayments.push({ amount: dp, date: new Date().toISOString() });
+                    }
+                }
+                payload.payments = updatedPayments;
             } else {
                 payload.payments = document.getElementById('paymentStatus').value === 'lunas' 
                     ? [{ amount: price, date: new Date().toISOString() }] 
@@ -555,6 +576,23 @@
             document.getElementById('address').value = item.address || '';
             document.getElementById('category').value = item.category;
             document.getElementById('longSleeve').checked = item.is_long;
+            
+            // Atur status pembayaran dan DP pada form saat proses edit
+            const paid = (item.payments || []).reduce((a, b) => a + b.amount, 0);
+            const remain = item.price - paid;
+            
+            if (remain <= 0) {
+                document.getElementById('paymentStatus').value = 'lunas';
+                document.getElementById('installmentInput').classList.add('hidden');
+                document.getElementById('downPayment').value = '';
+            } else {
+                document.getElementById('paymentStatus').value = 'cicilan';
+                document.getElementById('installmentInput').classList.remove('hidden');
+                // Tampilkan nominal DP yang ada di transaksi pertama
+                const firstPayment = item.payments && item.payments[0] ? item.payments[0].amount : 0;
+                document.getElementById('downPayment').value = firstPayment;
+            }
+
             document.getElementById('formTitle').innerText = "Edit Pesanan";
             document.getElementById('submitBtn').innerText = "Simpan Perubahan";
             document.getElementById('cancelEditBtn').classList.remove('hidden');
@@ -568,6 +606,7 @@
             document.getElementById('formTitle').innerText = "Formulir Pemesanan";
             document.getElementById('submitBtn').innerText = "SIMPAN PESANAN";
             document.getElementById('cancelEditBtn').classList.add('hidden');
+            document.getElementById('installmentInput').classList.add('hidden');
             renderSizes();
         }
 
